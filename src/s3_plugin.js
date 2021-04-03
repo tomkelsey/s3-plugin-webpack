@@ -38,7 +38,7 @@ module.exports = class S3Plugin {
       directory,
       htmlFiles,
       basePathTransform = DEFAULT_TRANSFORM,
-      transformFile,
+      transformFileName = file => file,
       s3Options = {},
       cdnizerOptions = {},
       s3UploadOptions = {},
@@ -54,7 +54,7 @@ module.exports = class S3Plugin {
     this.uploadTotal = 0
     this.uploadProgress = 0
     this.basePathTransform = basePathTransform
-    this.transformFile = transformFile
+    this.transformFileName = transformFileName
     basePath = basePath ? addTrailingS3Sep(basePath) : ''
 
     this.options = {
@@ -124,7 +124,7 @@ module.exports = class S3Plugin {
   handleFiles(files) {
     return this.changeUrls(files)
       .then((files) => this.filterAllowedFiles(files))
-      .then((files) => this.uploadFiles(this.transformFiles(files)))
+      .then((files) => this.uploadFiles(files))
       .then(() => this.invalidateCloudfront())
   }
 
@@ -286,12 +286,6 @@ module.exports = class S3Plugin {
     )
   }
 
-  transformFiles(files = []) {
-    if (this.transformFile) {
-      return files.map((file) => this.transformFile(file))
-    }
-  }
-
   uploadFiles(files = []) {
     return this.transformBasePath().then(() => {
       if (this.options.priority) {
@@ -311,7 +305,7 @@ module.exports = class S3Plugin {
   }
 
   uploadFile(fileName, file) {
-    let Key = this.options.basePath + fileName
+    let Key = this.options.basePath + this.transformFileName(fileName)
     const s3Params = _.mapValues(this.uploadOptions, (optionConfig) => {
       return _.isFunction(optionConfig) ? optionConfig(fileName, file) : optionConfig
     })
