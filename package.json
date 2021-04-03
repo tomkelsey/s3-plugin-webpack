@@ -8,6 +8,7 @@
     "prepublishOnly": "npm run lint && npm run test && npm run build",
     "test": "NODE_ENV='test' mocha -t 10000 --require babel-register",
     "lint": "eslint ./src ./test",
+    "lint:fix": "eslint ./src --fix",
     "watch": "webpack --watch --mode development",
     "prep:major": "npm run build && npm version major",
     "prep:minor": "npm run build && npm version minor",
@@ -40,7 +41,7 @@
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
-    "babel-loader": "^8.1.0",
+    "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.6.1",
     "chai": "^4.2.0",
     "css-loader": "^5.0.0",
