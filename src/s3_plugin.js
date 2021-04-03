@@ -308,7 +308,6 @@ module.exports = class S3Plugin {
   }
 
   uploadFile(fileName, file) {
-    console.warn('UPLOAD FILE', fileName, file)
     let Key = this.transformKey(this.options.basePath + fileName)
     const s3Params = _.mapValues(this.uploadOptions, (optionConfig) => {
       return _.isFunction(optionConfig) ?
