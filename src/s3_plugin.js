@@ -38,6 +38,7 @@ module.exports = class S3Plugin {
       directory,
       htmlFiles,
       basePathTransform = DEFAULT_TRANSFORM,
+      transformFile,
       s3Options = {},
       cdnizerOptions = {},
       s3UploadOptions = {},
@@ -53,6 +54,7 @@ module.exports = class S3Plugin {
     this.uploadTotal = 0
     this.uploadProgress = 0
     this.basePathTransform = basePathTransform
+    this.transformFile = transformFile
     basePath = basePath ? addTrailingS3Sep(basePath) : ''
 
     this.options = {
@@ -122,7 +124,7 @@ module.exports = class S3Plugin {
   handleFiles(files) {
     return this.changeUrls(files)
       .then((files) => this.filterAllowedFiles(files))
-      .then((files) => this.uploadFiles(files))
+      .then((files) => this.uploadFiles(this.transformFiles(files)))
       .then(() => this.invalidateCloudfront())
   }
 
@@ -282,6 +284,12 @@ module.exports = class S3Plugin {
       (promise, uploadFn) => promise.then(uploadFn),
       Promise.resolve()
     )
+  }
+
+  transformFiles(files = []) {
+    if (this.transformFile) {
+      return files.map((file) => this.transformFile(file))
+    }
   }
 
   uploadFiles(files = []) {
